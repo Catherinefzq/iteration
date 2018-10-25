@@ -3,30 +3,42 @@ Untitled
 Catherine
 10/25/2018
 
-R Markdown
-----------
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ``` r
-summary(cars)
+x = rnorm(25, mean = 5, sd = 3)
+
+(x - mean(x)) / sd(x)
 ```
 
-    ##      speed           dist       
-    ##  Min.   : 4.0   Min.   :  2.00  
-    ##  1st Qu.:12.0   1st Qu.: 26.00  
-    ##  Median :15.0   Median : 36.00  
-    ##  Mean   :15.4   Mean   : 42.98  
-    ##  3rd Qu.:19.0   3rd Qu.: 56.00  
-    ##  Max.   :25.0   Max.   :120.00
+    ##  [1] -0.83687228  0.01576465 -1.05703126  1.50152998  0.16928872
+    ##  [6] -1.04107494  0.33550276  0.59957343  0.42849461 -0.49894708
+    ## [11]  1.41364561  0.23279252 -0.83138529 -2.50852027  1.00648110
+    ## [16] -0.22481531 -0.19456260  0.81587675  0.68682298  0.44756609
+    ## [21]  0.78971253  0.64568566 -0.09904161 -2.27133861  0.47485186
 
-Including Plots
----------------
+#### Z score function
 
-You can also embed plots, for example:
+``` r
+z_scores = function(x) {
+  
+  z = (x - mean(x)) / sd(x)
+  z
+  
+}
 
-![](writing_functions_files/figure-markdown_github/pressure-1.png)
+z_scores(x)
+```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+    ##  [1] -0.83687228  0.01576465 -1.05703126  1.50152998  0.16928872
+    ##  [6] -1.04107494  0.33550276  0.59957343  0.42849461 -0.49894708
+    ## [11]  1.41364561  0.23279252 -0.83138529 -2.50852027  1.00648110
+    ## [16] -0.22481531 -0.19456260  0.81587675  0.68682298  0.44756609
+    ## [21]  0.78971253  0.64568566 -0.09904161 -2.27133861  0.47485186
+
+``` r
+#z_scores(3)
+#z_scores("my name is jeff")
+#z_scores(iris)
+#z_scores(sample(c(TRUE, FALSE), 25, replace = TRUE))
+```
+
+Put in some checks in inputs

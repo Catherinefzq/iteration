@@ -6,25 +6,42 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+
+set.seed(1)
+
 ```
 
-## R Markdown
+```{r}
+x = rnorm(25, mean = 5, sd = 3)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+(x - mean(x)) / sd(x)
 ```
 
-## Including Plots
+#### Z score function
 
-You can also embed plots, for example:
+```{r}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+z_scores = function(x) {
+  
+  z = (x - mean(x)) / sd(x)
+  z
+  
+}
+
+z_scores(x)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+#z_scores(3)
+#z_scores("my name is jeff")
+#z_scores(iris)
+#z_scores(sample(c(TRUE, FALSE), 25, replace = TRUE))
+```
+
+Put in some checks in inputs
+```{r}
+
+```
+
