@@ -97,4 +97,132 @@ mean_and_sd(c(1,2,3))
 mean_and_sd_list(c(1,2,3))
 ```
 
+### Multiple inputs
+
+Simple linear regression
+
+```{r}
+sim_data = tibble(
+  x = rnorm(30, 1, 1),
+  y = 2 + 3 * x + rnorm(30, 0, 1)
+)
+
+ls_fit = lm(y ~ x, data = sim_data)
+bet0_hat = coef(ls_fit)[1]
+bet1_hat = coef(ls_fit)[2]
+```
+
+Write a function that simulates data, fits the model and returns the estimate. 
+
+```{r}
+sim_regression = function(n, beta0 = 2, beta1 = 3) {
+  
+  sim_data = tibble(
+    x = rnorm(n, mean = 1, sd = 1),
+    y = beta0 + beta1 * x + rnorm(n, 0, 1)
+  )
+  
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  tibble(
+    beta0_hat = coef(ls_fit)[1],
+    beta1_hat = coef(ls_fit)[2]
+  )
+}
+```
+
+```{r}
+
+sim_regression(30000, 1, 5)
+```
+
+```{r}
+url = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber=1"
+
+dynamite_html = read_html(url)
+
+review_titles = dynamite_html %>%
+  html_nodes("#cm_cr-review_list .review-title") %>%
+  html_text()
+
+review_stars = dynamite_html %>%
+  html_nodes("#cm_cr-review_list .review-rating") %>%
+  html_text()
+
+review_text = dynamite_html %>%
+    html_nodes(".review-data:nth-child(4)") %>%
+    html_text()
+
+reviews = tibble(
+  title = review_titles,
+  stars = review_stars,
+  text = review_text
+)
+```
+
+The function for above
+```{r}
+read_page_reviews <- function(url) {
+  
+  h = read_html(url)
+  
+  review_titles = h %>%
+    html_nodes("#cm_cr-review_list .review-title") %>%
+    html_text()
+  
+  review_stars = h %>%
+    html_nodes("#cm_cr-review_list .review-rating") %>%
+    html_text() %>%
+    str_extract("\\d") %>%
+    as.numeric()
+  
+  review_text = h %>%
+    html_nodes(".review-data:nth-child(4)") %>%
+    html_text()
+  
+  tibble(
+    title = review_titles,
+    stars = review_stars,
+    text = review_text
+  )
+}
+```
+
+```{r r eval = FALSE}
+read_page_reviews("https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber=1")
+```
+```{r eval = FALSE}
+url_base = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber="
+urls = str_c(url_base, 1:5)
+dynamite_reviews = bind_rows(
+  read_page_reviews(urls[1]),
+  read_page_reviews(urls[2]),
+  read_page_reviews(urls[3]),
+  read_page_reviews(urls[4]),
+  read_page_reviews(urls[5])
+)
+dynamite_reviews
+
+```
+
+#### function for reading excel
+```{r}
+read_table = function(path, range, movie_name) {
+  df = readxl::read_excel(path, range = range) %>%
+    janitor::clean_names() %>%
+    gather(key = sex, value = words, female:male) %>%
+    mutate(race = tolower(race),
+           movie = movie_name) 
+  df
+}
+```
+
+```{r}
+bind_rows(
+    read_table("./data/LotR_Words.xlsx", "B3:D6", "fellowship_ring"),
+    read_table("./data/LotR_Words.xlsx", "F3:H6", "two_towers"),
+    read_table("./data/LotR_Words.xlsx", "J3:L6", "return_king")) %>%
+  select(movie, everything()) 
+```
+
 
