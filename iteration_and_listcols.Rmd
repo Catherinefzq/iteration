@@ -147,6 +147,53 @@ weather =
 ```
 
 ```{r}
+weather_nest = weather %>% 
+  group_by(name, id) %>% 
+  nest(date:tmin)
+
+weather_nest %>% 
+  pull(id)
+
+weather_nest %>% 
+  pull(data)
+
+
+```
+unnesting...
+
+```{r}
+weather_nest %>% 
+  unnest
+```
+
+```{r}
+weather_nest$data[[1]] %>% # it's a data frame 
+  skimr::skim()
+
+```
+
+write a function
+```{r}
+weather_lm = function(df) {
+  
+  lm(tmax ~ tmin, data = df)
+}
+```
+
+```{r}
+weather_lm(weather_nest$data[[1]])
+```
+
+```{r}
+map(weather_nest$data, weather_lm)
+map(weather_nest$data, ~lm(tmax ~ tmin, data = .x))
+```
+
+save output as a new list column
+
+```{r}
+weather_nest %>% 
+  mutate(lm_result = map(weather_nest$data, weather_lm))
 
 ```
 
