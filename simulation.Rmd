@@ -117,5 +117,39 @@ sim_results %>%
   facet_grid(~sample_size)
 ```
 
+#### Publication bias
+
+```{r}
+sim_regression = function(n_samp = 30, beta0 = 2, beta1 = 3) {
+  
+  sim_data = tibble(
+    x = rnorm(n_samp),
+    y = beta0 + beta1 * x + rnorm(n_samp, 0, sqrt(50))
+  )
+  
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  broom::tidy(ls_fit) 
+  
+}
+```
+
+Change the slope
+
+```{r}
+sim_results = 
+  tibble(beta1_true = 0:6) %>% 
+  mutate(
+    estimate_dfs = map(.x = beta1_true, ~simulate_n_regressions(n_runs = 10000, n = 30, beta1 = .x))
+  )  
+sim_results = 
+  sim_results %>% 
+  unnest() %>% 
+  filter(term == "x") %>% 
+  select(beta1_true, estimate, p.value) %>% 
+  mutate(significant = as.numeric(p.value < 0.05))
+```
+
+
 
 
