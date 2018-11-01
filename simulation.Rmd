@@ -5,3 +5,117 @@ date: "11/1/2018"
 output: github_document
 ---
 
+```{r, include = FALSE}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+```
+
+#### simulation function
+```{r simulation function}
+sim_regression = function(n, beta0 = 2, beta1 = 3) {
+  
+  sim_data = tibble(
+    x = rnorm(n, mean = 1, sd = 1),
+    y = beta0 + beta1 * x + rnorm(n, 0, 1)
+  )
+  
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  tibble(
+    beta0_hat = coef(ls_fit)[1],
+    beta1_hat = coef(ls_fit)[2]
+  )
+}
+```
+
+Run it for a few times
+
+```{r}
+sim_regression(n = 30, 2, 3)
+```
+
+Iterate simulations
+
+```{r}
+output = vector("list", length = 100)
+
+for (i in 1:100) {
+  
+  output[[i]] = sim_regression(30, 2, 3)
+  
+}
+
+results = output %>% 
+  bind_rows
+```
+
+```{r}
+results %>% 
+  summarize(mean_b0 = mean(beta0_hat),
+            mean_b1 = mean(beta1_hat))
+
+results %>% 
+  ggplot(aes(x = beta0_hat, y = beta1_hat)) +
+  geom_point()
+```
+
+A better way to iterate
+
+```{r}
+results = rerun(1000, sim_regression(30, 2, 3)) %>% 
+  bind_rows()
+```
+
+#### Increase sample size
+
+```{r}
+n_list = list("n_30"  = 30, # different sample size
+              "n_60"  = 60, 
+              "n_120" = 120, 
+              "n_240" = 240)
+output = vector("list", length = 4)
+
+for (i in 1:4) {
+  output[[i]] = rerun(100, sim_regression(n = n_list[[i]])) %>% 
+    bind_rows
+}
+
+```
+
+
+```{r}
+simulate_n_regressions = function(n_runs = 100, n, beta0 = 2, beta1 = 3) {
+  
+  rerun(n_runs, sim_regression(n, beta0, beta1)) %>% 
+    bind_rows()
+}
+simulate_n_regressions(100, 30, 3, 2)
+```
+
+```{r}
+map(n_list, ~simulate_n_regressions(100, .x, 2, 3))  # repeat in different sample size in the list
+sim_results = 
+  tibble(sample_size = c(30, 60, 120, 240)) %>% 
+  mutate(estimate_dfs = map(.x = sample_size, ~simulate_n_regressions(n = .x))) %>% 
+  unnest
+sim_results
+```
+
+```{r}
+sim_results %>% 
+  group_by(sample_size) %>% 
+  summarize(emp_var_b1 = var(beta1_hat))
+
+sim_results %>% 
+  ggplot(aes(x = beta0_hat, y = beta1_hat)) +
+  geom_point() +
+  facet_grid(~sample_size)
+```
+
+
+
